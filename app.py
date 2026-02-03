@@ -1,5 +1,6 @@
 import streamlit as st
 import time
+import os # 파일 경로 확인용 모듈 추가
 
 # ==============================================================================
 # 1. [시스템 설정 & 스타일 정의]
@@ -57,7 +58,7 @@ st.markdown("""
         box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
     div.stButton > button p {
-        color: #ffffff !important; /* 버튼 내부 텍스트 흰색 강제 */
+        color: #ffffff !important;
     }
 
     /* 2. 진행바 (Progress Bar) */
@@ -65,7 +66,7 @@ st.markdown("""
         background-color: #004B87;
     }
 
-    /* 3. 결과 박스 (Result Box) - 파란 그라데이션 배경 */
+    /* 3. 결과 박스 (Result Box) */
     .final-result-box {
         background: linear-gradient(135deg, #004B87 0%, #0066CC 100%);
         padding: 35px;
@@ -75,7 +76,6 @@ st.markdown("""
         box-shadow: 0 10px 25px rgba(0, 75, 135, 0.4);
     }
     
-    /* 결과 박스 내부의 모든 텍스트는 흰색이어야 함 */
     .final-result-box h1, 
     .final-result-box h2,
     .final-result-box p, 
@@ -103,7 +103,7 @@ st.markdown("""
         margin-bottom: 15px;
     }
     .why-box p, .why-box b {
-        color: #333333 !important; /* 여기는 검은 글씨 */
+        color: #333333 !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -145,14 +145,22 @@ def restart():
     st.rerun()
 
 # ==============================================================================
-# 2. [UI 헤더] 고화질 로고 적용
+# 2. [UI 헤더] 로고 3중 안전장치 (무조건 뜸)
 # ==============================================================================
-# [수정] 파일 대신 공식 SVG URL 사용 (해상도 문제 해결)
-logo_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Schneider_Kreuznach_Logo.svg/2560px-Schneider_Kreuznach_Logo.svg.png"
-
 col_logo, col_empty = st.columns([1, 1.5])
-# width를 300으로 키워 더 시원하게 보이게 조정
-st.image(logo_url, width=300) 
+
+# 로고 우선순위: 1.소문자 파일 -> 2.대문자 파일 -> 3.웹 URL -> 4.텍스트
+with col_logo:
+    if os.path.exists("logo.png"):
+        st.image("logo.png", width=280)
+    elif os.path.exists("Logo.png"):
+        st.image("Logo.png", width=280)
+    else:
+        # 파일이 없을 경우 깨지지 않는 공식 URL 사용
+        try:
+            st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Schneider_Kreuznach_Logo.svg/800px-Schneider_Kreuznach_Logo.svg.png", width=280)
+        except:
+            st.markdown("## 🇩🇪 Schneider")
 
 st.progress(st.session_state.step * 20)
 st.markdown("---")
@@ -317,11 +325,10 @@ elif st.session_state.step == 5:
     </div>
     """, unsafe_allow_html=True)
 
-    # 2. 분석 리포트 (Why)
+    # 2. 분석 리포트
     st.markdown('<div class="question-card">', unsafe_allow_html=True)
     st.markdown("### 📊 분석 리포트")
     
-    # Why 설명 박스 (흰색/연한 파란 배경 + 검은 글씨)
     st.markdown(f"""
     <div class="why-box">
         <b>💡 Why:</b> {why_text}
