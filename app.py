@@ -2,7 +2,7 @@ import streamlit as st
 import time
 
 # ==============================================================================
-# 1. [시스템 설정 & 프리미엄 스타일(CSS)]
+# 1. [시스템 설정 & 다크모드 방지 스타일]
 # ==============================================================================
 st.set_page_config(
     page_title="Schneider AI Advisor",
@@ -10,26 +10,43 @@ st.set_page_config(
     layout="centered"
 )
 
-# --- [디자인: 슈나이더 프리미엄 테마 적용] ---
+# --- [디자인: 다크모드 강제 해제 및 프리미엄 테마] ---
 st.markdown("""
     <style>
-    /* 전체 배경 및 폰트 */
-    .stApp {
-        background-color: #F8F9FA;
-        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    /* 1. 스마트폰 다크모드 강제 무시 (글자색 검정 고정) */
+    :root {
+        --primary-color: #004B87;
+        --background-color: #ffffff;
+        --secondary-background-color: #f0f2f6;
+        --text-color: #000000; /* 글자색 강제 검정 */
+        --font: sans-serif;
     }
     
-    /* 슈나이더 블루 컬러 정의: #004B87 */
+    /* 2. 전체 앱 배경 및 기본 글자 설정 */
+    [data-testid="stAppViewContainer"] {
+        background-color: #F8F9FA;
+        color: #000000 !important;
+    }
     
-    /* 진행바 (Progress Bar) 커스텀 */
+    /* 3. 모든 텍스트 강제 검정 (헤더, 본문, 라디오버튼 등) */
+    h1, h2, h3, h4, h5, h6, p, li, span, div, label {
+        color: #000000 !important;
+    }
+    
+    /* 4. 라디오 버튼/체크박스 선택 항목 스타일 */
+    .stRadio label, .stCheckbox label, .stMultiSelect label {
+        color: #333333 !important;
+        font-weight: 500;
+    }
+
+    /* 5. 슈나이더 프리미엄 스타일 */
     .stProgress > div > div > div > div {
         background-color: #004B87;
     }
-
-    /* 버튼 스타일 (Primary) */
+    
     div.stButton > button:first-child {
         background-color: #004B87;
-        color: white;
+        color: white !important; /* 버튼 글씨만 흰색 유지 */
         border-radius: 8px;
         border: none;
         padding: 10px 24px;
@@ -41,7 +58,6 @@ st.markdown("""
         box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
 
-    /* 질문 카드 스타일 (컨테이너 박스) */
     .question-card {
         background-color: white;
         padding: 30px;
@@ -50,29 +66,19 @@ st.markdown("""
         margin-bottom: 20px;
         border-top: 5px solid #004B87;
     }
-    
-    /* 라디오 버튼 선택 강조 */
-    .stRadio label {
-        font-size: 16px;
-        font-weight: 500;
-        color: #333;
-    }
 
-    /* 헤더 텍스트 */
-    h1, h2, h3 {
-        color: #004B87;
-        font-weight: 700;
-    }
-    
-    /* 결과 박스 디자인 */
     .final-result-box {
         background: linear-gradient(135deg, #004B87 0%, #0066CC 100%);
-        color: white;
         padding: 30px;
         border-radius: 15px;
         text-align: center;
         margin-bottom: 20px;
         box-shadow: 0 10px 20px rgba(0,75,135,0.3);
+    }
+    
+    /* 결과 박스 내부 텍스트는 흰색이어야 함 */
+    .final-result-box h1, .final-result-box p, .final-result-box span {
+        color: #ffffff !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -176,10 +182,12 @@ def restart():
 # ==============================================================================
 # 2. [UI 헤더]
 # ==============================================================================
-# 로고 영역
+# [고화질 로고 적용]
+logo_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Schneider_Kreuznach_Logo.svg/2560px-Schneider_Kreuznach_Logo.svg.png"
+
 col_logo, col_empty = st.columns([1, 2])
 try:
-    st.image("logo.png", width=220)
+    st.image(logo_url, width=280)
 except:
     st.markdown("## 🇩🇪 Schneider")
 
@@ -401,7 +409,7 @@ elif st.session_state.step == 5:
     st.markdown(f"""
     <div class="final-result-box">
         <p style="font-size: 1.2rem; margin-bottom: 5px; opacity: 0.9;">AI Recommendation</p>
-        <h1 style="color: white; margin-top: 0; font-size: 2.5rem;">{final_lens['name']}</h1>
+        <h1 style="font-size: 2.5rem; margin-top: 0;">{final_lens['name']}</h1>
         <p style="font-size: 1.5rem; font-weight: bold; margin-top: 10px;">가격: {final_lens['price']}</p>
         {'<span style="background:rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; font-size:0.9rem;">Type: '+sub_type+'</span>' if sub_type else ''}
     </div>
