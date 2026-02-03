@@ -18,35 +18,32 @@ st.markdown("""
         --primary-color: #004B87;
         --background-color: #ffffff;
         --secondary-background-color: #f0f2f6;
-        --text-color: #000000; /* 글자색 강제 검정 */
+        --text-color: #000000;
         --font: sans-serif;
     }
     
-    /* 2. 전체 앱 배경 및 기본 글자 설정 */
     [data-testid="stAppViewContainer"] {
         background-color: #F8F9FA;
         color: #000000 !important;
     }
     
-    /* 3. 모든 텍스트 강제 검정 (헤더, 본문, 라디오버튼 등) */
     h1, h2, h3, h4, h5, h6, p, li, span, div, label {
         color: #000000 !important;
     }
     
-    /* 4. 라디오 버튼/체크박스 선택 항목 스타일 */
     .stRadio label, .stCheckbox label, .stMultiSelect label {
         color: #333333 !important;
         font-weight: 500;
     }
 
-    /* 5. 슈나이더 프리미엄 스타일 */
+    /* 2. 슈나이더 프리미엄 UI 스타일 */
     .stProgress > div > div > div > div {
         background-color: #004B87;
     }
     
     div.stButton > button:first-child {
         background-color: #004B87;
-        color: white !important; /* 버튼 글씨만 흰색 유지 */
+        color: white !important;
         border-radius: 8px;
         border: none;
         padding: 10px 24px;
@@ -76,7 +73,6 @@ st.markdown("""
         box-shadow: 0 10px 20px rgba(0,75,135,0.3);
     }
     
-    /* 결과 박스 내부 텍스트는 흰색이어야 함 */
     .final-result-box h1, .final-result-box p, .final-result-box span {
         color: #ffffff !important;
     }
@@ -182,8 +178,8 @@ def restart():
 # ==============================================================================
 # 2. [UI 헤더]
 # ==============================================================================
-# [고화질 로고 적용]
-logo_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Schneider_Kreuznach_Logo.svg/2560px-Schneider_Kreuznach_Logo.svg.png"
+# [수정됨] 더 가볍고 빠른 고화질 로고 URL (800px)
+logo_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Schneider_Kreuznach_Logo.svg/800px-Schneider_Kreuznach_Logo.svg.png"
 
 col_logo, col_empty = st.columns([1, 2])
 try:
@@ -196,7 +192,7 @@ st.progress(st.session_state.step * 20)
 st.markdown("---")
 
 # ==============================================================================
-# 3. [통합 정밀 문진 - 카드 UI 적용]
+# 3. [통합 정밀 문진]
 # ==============================================================================
 
 # [STEP 1] 기본 프로필
@@ -225,7 +221,7 @@ if st.session_state.step == 1:
     else:
         st.session_state.fail_check = False
     
-    st.markdown('</div>', unsafe_allow_html=True) # 카드 닫기
+    st.markdown('</div>', unsafe_allow_html=True) 
     st.button("다음 (Next) 👉", on_click=next_step, type="primary", use_container_width=True)
 
 
@@ -356,7 +352,6 @@ elif st.session_state.step == 5:
     sub_type = ""
     is_sensitive = len(sens_list) > 0 or fail_check or st.session_state.sensitivity_check
     
-    # (알고리즘 로직은 Ver 5.0과 동일)
     if (age >= 38 and "근거리" in main_cc) or (age >= 45):
         if "실내" in env and history != "누진다초점" and drive == "운전 안 함":
             if "자세" in posture or "팔을" in posture: 
@@ -415,18 +410,14 @@ elif st.session_state.step == 5:
     </div>
     """, unsafe_allow_html=True)
 
-    # 상세 설명 카드
     st.markdown('<div class="question-card">', unsafe_allow_html=True)
     st.markdown("### 📊 분석 리포트")
-    
     st.info(f"💡 **Why:** {why_text}")
-    
     st.markdown("**🛠️ 핵심 기술 (Key Features)**")
     for feat in final_lens['features']:
         st.markdown(f"- ✅ {feat}")
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # 임상 데이터 카드
     st.markdown('<div class="question-card">', unsafe_allow_html=True)
     st.markdown("### 👓 Clinical Data")
     c1, c2 = st.columns(2)
