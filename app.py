@@ -307,3 +307,130 @@ elif st.session_state.step == 4:
     st.markdown("<br>**3. 공간 감각 예민도 (Sensitivity)**", unsafe_allow_html=True)
     st.session_state.sensitivity_check = st.multiselect(
         "예민도 체크 (해당 시 선택)",
+        ["계단 내려갈 때 바닥이 울렁거림", "고개를 빠르게 돌릴 때 어지러움", "새로운 안경 적응이 느린 편"]
+    )
+    
+    st.markdown("---")
+    st.markdown("**4. 선호 렌즈 등급 (Budget)**")
+    st.session_state.grade_pref = st.selectbox(
+        "추천 렌즈 등급",
+        ["Flagship (최고 사양)", "High-End (고성능)", "Premium (안정성)", "Standard (가성비)", "Entry (입문)"],
+        index=2
+    )
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    col1, col2 = st.columns(2)
+    col1.button("👈 이전", on_click=prev_step, use_container_width=True)
+    col2.button("🔍 AI 정밀 분석 실행", on_click=next_step, type="primary", use_container_width=True)
+
+
+# [STEP 5] 최종 결과 리포트
+elif st.session_state.step == 5:
+    with st.spinner('🇩🇪 Schneider Optical Brain 분석 중...'):
+        time.sleep(2)
+
+    # --- [Brain] 분석 알고리즘 ---
+    age = st.session_state.age
+    history = st.session_state.history
+    main_cc = st.session_state.main_cc
+    sub_symptoms = st.session_state.sub_symptoms
+    posture = st.session_state.posture
+    dynamic = st.session_state.dynamic_vision
+    drive = st.session_state.drive_pattern
+    env = st.session_state.env_ratio
+    digital = st.session_state.digital_intensity
+    sens_list = st.session_state.sensitivity_check
+    grade_pref = st.session_state.grade_pref
+    fail_check = st.session_state.fail_check
+
+    key = ""
+    why_text = ""
+    sub_type = ""
+    is_sensitive = len(sens_list) > 0 or fail_check or st.session_state.sensitivity_check
+    
+    # (알고리즘 로직은 Ver 5.0과 동일)
+    if (age >= 38 and "근거리" in main_cc) or (age >= 45):
+        if "실내" in env and history != "누진다초점" and drive == "운전 안 함":
+            if "자세" in posture or "팔을" in posture: 
+                if "Light" not in digital: 
+                    key = "office_150"
+                    why_text = "데스크 업무와 실내 생활 비중이 높습니다. 누진보다 넓은 중근거리 시야를 제공하는 오피스 렌즈가 업무 효율을 극대화합니다."
+        if key == "":
+            if "실외" in env or "동적" in dynamic or "멀티" in drive:
+                lifestyle_type = "Dynamic"
+                why_text = "활동적인 라이프스타일과 잦은 시선 이동을 고려하여, 원거리 시야가 넓고 울렁임이 적은 설계를 채택했습니다."
+            elif "실내 90%" in env:
+                lifestyle_type = "Static"
+                why_text = "근거리 집중도가 높은 환경입니다. 스마트폰과 독서 영역이 강화된 정밀 근용 설계를 채택했습니다."
+            else:
+                lifestyle_type = "Allround"
+                why_text = "실내외 활동의 밸런스가 중요합니다. 모든 거리에서 균형 잡힌 시야를 제공하는 표준 설계를 채택했습니다."
+
+            if is_sensitive or "초점 전환 딜레이" in sub_symptoms or "주변부 울렁임" in sub_symptoms:
+                key = "prog_premium" if lifestyle_type == "Static" else "prog_high"
+                why_text += " 특히 예민한 시각 특성과 주변부 울렁임을 제어하기 위해 상위 등급의 **[Swim Effect Control]** 기술이 필수적입니다."
+            else:
+                if "Flagship" in grade_pref: key = "prog_flagship"
+                elif "High-End" in grade_pref: key = "prog_high"
+                elif "Premium" in grade_pref: key = "prog_premium"
+                elif "Standard" in grade_pref: key = "prog_standard"
+                else: key = "prog_entry"
+                why_text += f" 고객님의 예산 선호도와 필요 성능을 고려하여 최적의 가성비를 갖춘 모델을 매칭했습니다."
+            sub_type = lifestyle_type
+
+    elif "피로" in main_cc:
+        key = "hue_plus"
+        why_text = "오후 시간대의 눈 피로는 '조절력 부족' 신호입니다. 8가지 정밀 타입으로 눈의 힘을 덜어주는 기능성 렌즈가 필요합니다."
+    elif "야간" in main_cc or "야간 시력 저하" in sub_symptoms or "광과민" in sub_symptoms:
+        key = "drive_stock"
+        why_text = "야간 운전 시 대향차 라이트 눈부심과 대비감도 저하를 호소하셨습니다. 특수 코팅으로 빛 번짐을 억제해야 합니다."
+    else:
+        if "Heavy" in digital:
+            key = "bp_stock"
+            why_text = "디지털 기기 노출이 매우 많습니다. 일반 렌즈보다 강력한 블루라이트 차단 소재(Blue Protect)가 시력 보호에 필수입니다."
+        else:
+            key = "reins_custom"
+            why_text = "주변부 왜곡이나 흐림 없이, 가장 맑고 깨끗한 해상도를 원하신다면 개인맞춤 단초점 렌즈가 정답입니다."
+
+    final_lens = lens_catalog.get(key, lens_catalog["prog_standard"])
+    add_val = get_estimated_add(age)
+
+    # --- [결과 화면: 프리미엄 UI] ---
+    st.balloons()
+    
+    st.markdown(f"""
+    <div class="final-result-box">
+        <p style="font-size: 1.2rem; margin-bottom: 5px; opacity: 0.9;">AI Recommendation</p>
+        <h1 style="color: white; margin-top: 0; font-size: 2.5rem;">{final_lens['name']}</h1>
+        <p style="font-size: 1.5rem; font-weight: bold; margin-top: 10px;">가격: {final_lens['price']}</p>
+        {'<span style="background:rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; font-size:0.9rem;">Type: '+sub_type+'</span>' if sub_type else ''}
+    </div>
+    """, unsafe_allow_html=True)
+
+    # 상세 설명 카드
+    st.markdown('<div class="question-card">', unsafe_allow_html=True)
+    st.markdown("### 📊 분석 리포트")
+    
+    st.info(f"💡 **Why:** {why_text}")
+    
+    st.markdown("**🛠️ 핵심 기술 (Key Features)**")
+    for feat in final_lens['features']:
+        st.markdown(f"- ✅ {feat}")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # 임상 데이터 카드
+    st.markdown('<div class="question-card">', unsafe_allow_html=True)
+    st.markdown("### 👓 Clinical Data")
+    c1, c2 = st.columns(2)
+    with c1:
+        st.caption("고객 프로필")
+        st.write(f"- 연령: {age}세")
+        st.write(f"- 디지털 사용: {digital}")
+        if is_sensitive: st.write("- **⚠️ 예민도 높음**")
+    with c2:
+        st.caption("전문가 소견")
+        st.write(f"- 권장 가입도: **{add_val}**")
+        st.write(f"- 렌즈 분류: {'기능성/오피스' if 'Office' in final_lens['name'] or 'Hue' in final_lens['name'] else '누진 다초점'}")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    st.button("🔄 새로운 고객 상담하기", on_click=restart, type="primary", use_container_width=True)
