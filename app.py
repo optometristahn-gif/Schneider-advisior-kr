@@ -2,7 +2,7 @@ import streamlit as st
 import time
 
 # ==============================================================================
-# 1. [시스템 설정 & 스타일]
+# 1. [시스템 설정 & 스타일 정의]
 # ==============================================================================
 st.set_page_config(
     page_title="Schneider AI Advisor",
@@ -10,10 +10,10 @@ st.set_page_config(
     layout="centered"
 )
 
-# --- [디자인: 다크모드 방지 & 프리미엄 UI] ---
+# --- [CSS: 다크모드 방지 & 가독성 최적화] ---
 st.markdown("""
     <style>
-    /* 1. 폰트 및 컬러 강제 고정 (다크모드 방지) */
+    /* [기본 설정] 스마트폰 다크모드 무시 -> 흰 배경/검은 글씨 강제 */
     :root {
         --primary-color: #004B87;
         --background-color: #ffffff;
@@ -21,35 +21,70 @@ st.markdown("""
         --text-color: #000000;
         --font: sans-serif;
     }
+    
+    /* 앱 전체 배경 흰색 고정 */
     [data-testid="stAppViewContainer"] {
         background-color: #F8F9FA;
         color: #000000 !important;
     }
-    h1, h2, h3, h4, h5, h6, p, li, span, div, label {
+    
+    /* 기본 텍스트 검은색 고정 (!important로 강제) */
+    h1, h2, h3, h4, h5, h6, p, li, div, label, input, textarea {
         color: #000000 !important;
     }
+    
+    /* 라디오/체크박스 라벨 검은색 */
     .stRadio label, .stCheckbox label, .stMultiSelect label {
         color: #333333 !important;
-        font-weight: 500;
+        font-weight: 600;
     }
 
-    /* 2. 슈나이더 UI 요소 */
-    .stProgress > div > div > div > div {
-        background-color: #004B87;
-    }
+    /* [중요] 파란 배경 위 흰색 글씨 강제 설정 */
+    /* 1. 버튼 (Button) */
     div.stButton > button:first-child {
-        background-color: #004B87;
-        color: white !important;
+        background-color: #004B87 !important;
+        color: #ffffff !important; /* 흰색 글씨 */
         border-radius: 8px;
         border: none;
-        padding: 10px 24px;
+        padding: 12px 24px;
+        font-size: 16px;
         font-weight: bold;
         transition: all 0.3s ease;
     }
     div.stButton > button:first-child:hover {
-        background-color: #003366;
+        background-color: #003366 !important;
+        color: #ffffff !important;
         box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
+    div.stButton > button p {
+        color: #ffffff !important; /* 버튼 내부 텍스트 흰색 강제 */
+    }
+
+    /* 2. 진행바 (Progress Bar) */
+    .stProgress > div > div > div > div {
+        background-color: #004B87;
+    }
+
+    /* 3. 결과 박스 (Result Box) - 파란 그라데이션 배경 */
+    .final-result-box {
+        background: linear-gradient(135deg, #004B87 0%, #0066CC 100%);
+        padding: 35px;
+        border-radius: 15px;
+        text-align: center;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 25px rgba(0, 75, 135, 0.4);
+    }
+    
+    /* 결과 박스 내부의 모든 텍스트는 흰색이어야 함 */
+    .final-result-box h1, 
+    .final-result-box h2,
+    .final-result-box p, 
+    .final-result-box span, 
+    .final-result-box div {
+        color: #ffffff !important;
+    }
+
+    /* [UI 카드 스타일] */
     .question-card {
         background-color: white;
         padding: 30px;
@@ -59,17 +94,16 @@ st.markdown("""
         border-top: 5px solid #004B87;
     }
     
-    /* 결과 박스 (글씨 흰색 고정) */
-    .final-result-box {
-        background: linear-gradient(135deg, #004B87 0%, #0066CC 100%);
-        padding: 30px;
-        border-radius: 15px;
-        text-align: center;
-        margin-bottom: 20px;
-        box-shadow: 0 10px 20px rgba(0,75,135,0.3);
+    /* Why 설명 박스 */
+    .why-box {
+        background-color: #f0f7ff;
+        padding: 20px;
+        border-radius: 10px;
+        border-left: 5px solid #004B87;
+        margin-bottom: 15px;
     }
-    .final-result-box h1, .final-result-box p, .final-result-box span {
-        color: #ffffff !important;
+    .why-box p, .why-box b {
+        color: #333333 !important; /* 여기는 검은 글씨 */
     }
     </style>
     """, unsafe_allow_html=True)
@@ -111,15 +145,14 @@ def restart():
     st.rerun()
 
 # ==============================================================================
-# 2. [UI 헤더] 로고 설정 (파일 우선)
+# 2. [UI 헤더] 고화질 로고 적용
 # ==============================================================================
-col_logo, col_empty = st.columns([1, 2])
-try:
-    # 1순위: 로컬/깃허브에 있는 logo.png 파일 사용
-    st.image("logo.png", width=260) 
-except:
-    # 2순위: 파일 없으면 텍스트 표시
-    st.markdown("## 🇩🇪 Schneider")
+# [수정] 파일 대신 공식 SVG URL 사용 (해상도 문제 해결)
+logo_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Schneider_Kreuznach_Logo.svg/2560px-Schneider_Kreuznach_Logo.svg.png"
+
+col_logo, col_empty = st.columns([1, 1.5])
+# width를 300으로 키워 더 시원하게 보이게 조정
+st.image(logo_url, width=300) 
 
 st.progress(st.session_state.step * 20)
 st.markdown("---")
@@ -201,7 +234,7 @@ elif st.session_state.step == 4:
     c1.button("👈 이전", on_click=prev_step, use_container_width=True)
     c2.button("🔍 AI 분석 실행", on_click=next_step, type="primary", use_container_width=True)
 
-# [STEP 5] 결과 (HTML 깨짐 수정됨)
+# [STEP 5] 결과
 elif st.session_state.step == 5:
     with st.spinner('🇩🇪 Schneider Optical Brain 분석 중...'):
         time.sleep(1.5)
@@ -224,7 +257,7 @@ elif st.session_state.step == 5:
     sub_type = ""
     is_sensitive = len(sens_list) > 0 or st.session_state.fail_check
     
-    # 로직
+    # 로직 (Ver 5.0과 동일)
     if (age >= 38 and "근거리" in main_cc) or (age >= 45):
         if "실내" in env and history != "누진다초점" and drive == "운전 안 함":
             if "자세" in posture or "팔을" in posture: 
@@ -274,6 +307,7 @@ elif st.session_state.step == 5:
     # [결과 화면 UI]
     st.balloons()
     
+    # 1. 메인 결과 박스 (파란 배경 + 흰색 글씨 강제)
     st.markdown(f"""
     <div class="final-result-box">
         <p style="font-size: 1.2rem; margin-bottom: 5px; opacity: 0.9;">AI Recommendation</p>
@@ -283,11 +317,13 @@ elif st.session_state.step == 5:
     </div>
     """, unsafe_allow_html=True)
 
+    # 2. 분석 리포트 (Why)
     st.markdown('<div class="question-card">', unsafe_allow_html=True)
     st.markdown("### 📊 분석 리포트")
-    # [수정] st.info 대신 깔끔한 마크다운 사용 (HTML 깨짐 방지)
+    
+    # Why 설명 박스 (흰색/연한 파란 배경 + 검은 글씨)
     st.markdown(f"""
-    <div style="background-color:#f0f2f6; padding:15px; border-radius:10px; border-left:5px solid #004B87;">
+    <div class="why-box">
         <b>💡 Why:</b> {why_text}
     </div>
     """, unsafe_allow_html=True)
@@ -297,6 +333,7 @@ elif st.session_state.step == 5:
         st.markdown(f"- ✅ {feat}")
     st.markdown('</div>', unsafe_allow_html=True)
 
+    # 3. 임상 데이터
     st.markdown('<div class="question-card">', unsafe_allow_html=True)
     st.markdown("### 👓 Clinical Data")
     c1, c2 = st.columns(2)
