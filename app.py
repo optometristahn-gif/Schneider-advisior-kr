@@ -20,7 +20,7 @@ st.markdown("""
         --background-color: #ffffff;
         --secondary-background-color: #f0f2f6;
         --text-color: #000000;
-        --font: "Pretendard", "Malgun Gothic", sans-serif; /* 한글 폰트 최적화 */
+        --font: "Pretendard", "Malgun Gothic", sans-serif;
     }
     
     /* 앱 전체 배경 흰색 고정 */
@@ -45,7 +45,7 @@ st.markdown("""
     /* 1. 버튼 (Button) */
     div.stButton > button:first-child {
         background-color: #004B87 !important;
-        color: #ffffff !important; /* 흰색 글씨 */
+        color: #ffffff !important;
         border-radius: 8px;
         border: none;
         padding: 12px 24px;
@@ -168,7 +168,7 @@ st.markdown("---")
 # 3. [문진 프로세스] (완벽한 한글화)
 # ==============================================================================
 
-# [STEP 1] 기본 프로필 (누진 실패 체크 로직 복구됨)
+# [STEP 1] 기본 프로필
 if st.session_state.step == 1:
     st.markdown('<div class="question-card">', unsafe_allow_html=True)
     st.subheader("1단계. 고객 프로필")
@@ -183,8 +183,7 @@ if st.session_state.step == 1:
         label_visibility="collapsed"
     )
     
-    # [복구된 로직] 누진다초점 선택 시에만 체크박스 등장
-    st.session_state.fail_check = False # 기본값 초기화
+    st.session_state.fail_check = False
     if st.session_state.history == "누진다초점 안경":
         st.markdown("<br>", unsafe_allow_html=True)
         st.warning("🔍 **체크포인트:** 과거 누진 안경 사용 시 울렁임이나 부적응 경험이 있습니까?")
@@ -197,7 +196,7 @@ if st.session_state.step == 1:
 elif st.session_state.step == 2:
     st.markdown('<div class="question-card">', unsafe_allow_html=True)
     st.subheader("2단계. 시각적 불편 정밀 분석")
-    st.markdown("**1. 가장 해결하고 싶은 주호소 (CC)**")
+    st.markdown("**1. 가장 해결하고 싶은 불편 증상**")
     st.session_state.main_cc = st.radio("CC 선택", ["근거리 흐림 (작은 글씨/폰)", "원거리 흐림 (표지판/TV)", "오후 시간대 눈의 피로/충혈", "야간 운전 시 빛 번짐/눈부심"], label_visibility="collapsed")
     
     st.markdown("<br>**2. 동반되는 상세 증상 (복수 선택)**", unsafe_allow_html=True)
@@ -212,7 +211,7 @@ elif st.session_state.step == 2:
 elif st.session_state.step == 3:
     st.markdown('<div class="question-card">', unsafe_allow_html=True)
     st.subheader("3단계. 시습관 및 자세 분석")
-    st.markdown("**1. 작은 글씨를 볼 때의 자세 (Posture)**")
+    st.markdown("**1. 작은 글씨를 볼 때의 자세**")
     st.session_state.posture = st.radio("자세", ["자연스러운 자세 유지", "안경을 벗거나 고개를 뒤로 젖힘", "팔을 멀리 뻗거나 당겨서 거리 조절"], label_visibility="collapsed")
     
     st.markdown("<br>**2. 이동 중 시각 활동 (동적 시야)**", unsafe_allow_html=True)
@@ -234,21 +233,23 @@ elif st.session_state.step == 4:
     st.session_state.env_ratio = st.select_slider("비중", options=["실내 90% (사무직/가사)", "실내 70%", "밸런스 (50:50)", "실외 70%", "실외 90% (현장/영업)"])
     
     st.markdown("<br>**2. 하루 디지털 기기 사용량**", unsafe_allow_html=True)
-    st.session_state.digital_intensity = st.radio("디지털", ["Light (3시간 미만)", "Moderate (4~6시간)", "Heavy (7시간 이상)"], horizontal=True)
+    # [수정] 영문 Light/Moderate/Heavy 제거
+    st.session_state.digital_intensity = st.radio("디지털", ["적음 (3시간 미만)", "보통 (4~6시간)", "많음 (7시간 이상)"], horizontal=True)
     
     st.markdown("<br>**3. 시각적 예민도 체크**", unsafe_allow_html=True)
     st.session_state.sensitivity_check = st.multiselect("예민도", ["계단을 내려갈 때 바닥이 울렁거림", "고개를 빠르게 돌릴 때 어지러움", "새로운 안경 적응이 느린 편"], label_visibility="collapsed")
     
     st.markdown("---")
     st.markdown("**4. 선호하는 렌즈 등급**")
-    st.session_state.grade_pref = st.selectbox("등급", ["Flagship (최고 사양)", "High-End (고성능)", "Premium (안정성)", "Standard (가성비)", "Entry (입문형)"], index=2)
+    # [수정] 등급 표기 한국어 우선으로 변경
+    st.session_state.grade_pref = st.selectbox("등급", ["최고급형 (Flagship)", "고급형 (High-End)", "프리미엄 (Premium)", "표준형 (Standard)", "실속형 (Entry)"], index=2)
     st.markdown('</div>', unsafe_allow_html=True)
     
     c1, c2 = st.columns(2)
     c1.button("👈 이전 단계", on_click=prev_step, use_container_width=True)
     c2.button("🔍 AI 정밀 분석 실행", on_click=next_step, type="primary", use_container_width=True)
 
-# [STEP 5] 결과 (완벽한 한글화)
+# [STEP 5] 결과
 elif st.session_state.step == 5:
     with st.spinner('🇩🇪 슈나이더 광학 알고리즘이 분석 중입니다...'):
         time.sleep(1.5)
@@ -271,11 +272,12 @@ elif st.session_state.step == 5:
     sub_type = ""
     is_sensitive = len(sens_list) > 0 or st.session_state.fail_check
     
-    # 분석 로직 (Ver 5.0 로직 유지)
+    # 분석 로직 (한글 옵션 변경사항 반영)
     if (age >= 38 and "근거리" in main_cc) or (age >= 45):
         if "실내" in env and history != "누진다초점 안경" and drive == "운전 안 함":
             if "자세" in posture or "팔을" in posture: 
-                if "Light" not in digital: 
+                # [수정] Light -> 적음
+                if "적음" not in digital: 
                     key = "office_150"
                     why_text = "데스크 업무와 실내 생활 비중이 높습니다. 일반 누진 렌즈보다 훨씬 넓은 중근거리 시야를 제공하는 오피스 렌즈가 업무 효율을 극대화해 줍니다."
         if key == "":
@@ -293,6 +295,7 @@ elif st.session_state.step == 5:
                 key = "prog_premium" if lifestyle_type == "Static" else "prog_high"
                 why_text += " 특히 고객님의 예민한 시각 특성과 울렁임을 제어하기 위해 상위 등급의 **[Swim Effect Control]** 기술이 필수적입니다."
             else:
+                # [수정] 등급 매칭 로직 (괄호 안 영문 키워드로 매칭)
                 if "Flagship" in grade_pref: key = "prog_flagship"
                 elif "High-End" in grade_pref: key = "prog_high"
                 elif "Premium" in grade_pref: key = "prog_premium"
@@ -308,7 +311,8 @@ elif st.session_state.step == 5:
         key = "drive_stock"
         why_text = "야간 운전 시 대향차 라이트 눈부심과 대비감도 저하를 호소하셨습니다. 특수 코팅으로 빛 번짐을 억제해야 합니다."
     else:
-        if "Heavy" in digital:
+        # [수정] Heavy -> 많음
+        if "많음" in digital:
             key = "bp_stock"
             why_text = "디지털 기기 노출이 많아 시력 보호가 시급합니다. 강력한 블루라이트 차단 소재(Blue Protect)를 처방합니다."
         else:
@@ -335,14 +339,14 @@ elif st.session_state.step == 5:
     st.markdown('<div class="question-card">', unsafe_allow_html=True)
     st.markdown("### 📊 정밀 분석 리포트")
     
-    # Why 설명 박스
     st.markdown(f"""
     <div class="why-box">
         <b>💡 추천 근거:</b> {why_text}
     </div>
     """, unsafe_allow_html=True)
     
-    st.markdown("<br>**🛠️ 제품 핵심 기술 (Key Features)**", unsafe_allow_html=True)
+    # [수정] Key Features 영문 제거
+    st.markdown("<br>**🛠️ 제품 핵심 기술**", unsafe_allow_html=True)
     for feat in final_lens['features']:
         st.markdown(f"- ✅ {feat}")
     st.markdown('</div>', unsafe_allow_html=True)
